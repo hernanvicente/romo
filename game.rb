@@ -31,13 +31,13 @@ class Game
   def move
     case @position[:f]
     when 'NORTH'
-      @position[:y] += 1
+      @position[:y] += 1 if @position[:y] < @table[:y]
     when 'EAST'
-      @position[:x] += 1
+      @position[:x] += 1 if @position[:x] < @table[:x]
     when 'SOUTH'
-      @position[:y] -= 1
+      @position[:y] -= 1 if @position[:y].positive?
     when 'WEST'
-      @position[:x] -= 1
+      @position[:x] -= 1 if @position[:x].positive?
     end
   end
 
