@@ -1,10 +1,7 @@
-# robot.rb
-
-require 'matrix'
-
+# game.rb
 class Game
-  def initialize(rows = 5, cols = 5, north = :y)
-    @table = { x: rows, y: cols, north: north }
+  def initialize(rows = 5, cols = 5)
+    @table = { x: rows, y: cols }
     @position = { x: nil, x: nil, f: nil }
   end
 
@@ -21,6 +18,8 @@ class Game
       end
     end.last
   end
+
+  private
 
   def place(row, col, facing)
     @position[:x] = row.to_i
@@ -42,59 +41,24 @@ class Game
   end
 
   def left
-    case @position[:f]
-    when 'NORTH'
-      @position[:f] = 'WEST'
-    when 'EAST'
-      @position[:f] = 'NORTH'
-    when 'SOUTH'
-      @position[:f] = 'EAST'
-    when 'WEST'
-      @position[:f] = 'SOUTH'
-    end
+    turn(:left)
   end
 
   def right
-    case @position[:f]
-    when 'NORTH'
-      @position[:f] = 'EAST'
-    when 'EAST'
-      @position[:f] = 'SOUTH'
-    when 'SOUTH'
-      @position[:f] = 'WEST'
-    when 'WEST'
-      @position[:f] = 'NORTH'
-    end
+    turn(:right)
   end
 
   def report
     "#{@position[:x]},#{@position[:y]},#{@position[:f]}"
   end
+
+  def turn(side)
+    points = {
+      north: { left: :west, right: :east },
+      east: { left: :north, right: :south },
+      south: { left: :east, right: :west },
+      west: { left: :south, right: :north }
+    }
+    @position[:f] = points[@position[:f].downcase.to_sym][side].to_s.upcase
+  end
 end
-
-
-# SW                       SE
-# {x: 0, y: 0, f:}, {x: 0, y: 1, f:}, {x: 0, y: 2, f:}, {x: 0, y: 3, f:}, {x: 0, y: 4, f:}, 
-# {x: 1, y: 0, f:}, {x: 1, y: 1, f:}, {x: 1, y: 2, f:}, {x: 1, y: 3, f:}, {x: 1, y: 4, f:}, 
-# {x: 2, y: 0, f:}, {x: 2, y: 1, f:}, {x: 2, y: 2, f:}, {x: 2, y: 3, f:}, {x: 2, y: 4, f:}, 
-# {x: 3, y: 0, f:}, {x: 3, y: 1, f:}, {x: 3, y: 2, f:}, {x: 3, y: 3, f:}, {x: 3, y: 4, f:}, 
-# {x: 4, y: 0, f:}, {x: 4, y: 1, f:}, {x: 4, y: 2, f:}, {x: 4, y: 3, f:}, {x: 4, y: 4, f:},
-# NW                       NE
-
-# SW                       SE
-# [0,0,][0,1,][0,2,][0,3,][0,4,]
-# [1,0,][1,1,][1,2,][1,3,][1,4,]
-# [2,0,][2,1,][2,2,][2,3,][2,4,]
-# [3,0,][3,1,][3,2,][3,3,][3,4,]
-# [4,0,][4,1,][4,2,][4,3,][4,4,]
-# NW                       NE
-
-# SE                       NE
-# [
-#   [nil, nil, nil, nil, nil], # 0, 4
-#   [nil, nil, nil, nil, nil],
-#   [nil, nil, nil, nil, nil],
-#   [nil, nil, nil, nil, nil],
-#   [nil, nil, nil, 'n', nil], # 4 , 3
-# ]
-# SW                       NW
