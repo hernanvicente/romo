@@ -3,57 +3,72 @@
 require 'matrix'
 
 class Game
-  def initialize
-    @table = table
+  def initialize(rows = 5, cols = 5, north = :y)
+    @table = { x: rows, y: cols, north: north }
+    @position = { x: nil, x: nil, f: nil }
   end
 
   def play(str)
-    # PLACE 0,0,NORTH MOVE REPORT
-    commands = str.gsub(/(PLACE\s[^\s]+|MOVE|REPORT)/)
-    commands.each do |command|
-      # PLACE 0,0,NORTH
-      return send(command.downcase) unless command.match?(/PLACE/)
-
-      # NORTH MOVE REPORT
-      method_and_args = command.split
-      method = method_and_args[0].downcase
-      args   = method_and_args[1].split(',')
-      send(method, *args)
-    end
+    commands = str.gsub(/(PLACE\s[^\s]+|MOVE|LEFT|RIGHT|REPORT)/)
+    commands.map do |command|
+      if command.match?(/PLACE/)
+        method_and_args = command.split
+        method = method_and_args[0].downcase
+        args   = method_and_args[1].split(',')
+        send(method, *args)
+      else
+        send(command.downcase)
+      end
+    end.last
   end
 
-  def place(x, y, f)
-    puts 'placing'
-    puts x
-    puts y
-    puts f
+  def place(row, col, facing)
+    @position[:x] = row.to_i
+    @position[:y] = col.to_i
+    @position[:f] = facing
   end
 
   def move
-    puts 'moving'
+    case @position[:f]
+    when 'NORTH'
+      @position[:y] += 1
+    when 'EAST'
+      @position[:x] += 1
+    when 'SOUTH'
+      @position[:y] -= 1
+    when 'WEST'
+      @position[:x] -= 1
+    end
   end
 
   def left
-    puts 'left'
+    case @position[:f]
+    when 'NORTH'
+      @position[:f] = 'WEST'
+    when 'EAST'
+      @position[:f] = 'NORTH'
+    when 'SOUTH'
+      @position[:f] = 'EAST'
+    when 'WEST'
+      @position[:f] = 'SOUTH'
+    end
   end
 
   def right
-    puts 'right'
+    case @position[:f]
+    when 'NORTH'
+      @position[:f] = 'EAST'
+    when 'EAST'
+      @position[:f] = 'SOUTH'
+    when 'SOUTH'
+      @position[:f] = 'WEST'
+    when 'WEST'
+      @position[:f] = 'NORTH'
+    end
   end
 
   def report
-    puts 'reporting'
-  end
-
-  private
-
-  def table(x = 5, y = 5)
-    Matrix.build(x, y) { nil }
-    # Array.new(x) do |i|
-    #   Array.new(y) do |i|
-    #     {  }
-    #   end
-    # end
+    "#{@position[:x]},#{@position[:y]},#{@position[:f]}"
   end
 end
 
